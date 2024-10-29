@@ -1,0 +1,53 @@
+name: Deploy to Linux Server
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+          
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.10
+          
+      - name: Instalar as dependencias
+        run: npm ci
+        
+      - name: Deletar o repositorio atual no servidor
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ vars.PROD_HOST }}
+          username: ${{ vars.PROD_HOST_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            rm -r ${{ vars.DESTINATION_FOLDER }}
+        
+      - name: Copiar os arquivos do repositorio instalado para o servidor
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ vars.PROD_HOST }}
+          username: ${{ vars.PROD_HOST_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: ./
+          target: ${{ vars.DESTINATION_FOLDER }}
+          
+      - name: Criar arquiv .ENV e Reiniciar a aplicacao
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ vars.PROD_HOST }}
+          username: ${{ vars.PROD_HOST_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            PATH=/root/.nvm/versions/node/v16.10.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+            cd ${{ vars.DESTINATION_FOLDER }}
+            echo '${{ secrets.ENV_FILE }}' > .env
+            cd /root
+            pm2 restart ${{ vars.APP_NAME }} --update-env
