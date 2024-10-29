@@ -1,4 +1,4 @@
-const fs = require('fs')
+const fs = require('fs') //
 const puppeteer = require('puppeteer');
 require('dotenv-safe').config({
     allowEmptyValues: true,
