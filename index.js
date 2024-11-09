@@ -286,6 +286,17 @@ app.post('/speeches_view_fetch', auth, async (req, res) => {
         return res.status(500).json(ex)
     }
 })
+app.get('/sacramentals', auth, async (req, res) => {
+    try {
+
+        return res.json(await db.fetch('sacramentals', '', ''))
+
+    }
+    catch (ex) {
+        console.log(ex)
+        return res.status(500).json(ex)
+    }
+})
 // #endregion
 
 

@@ -72,3 +72,16 @@ from sacramentals s
 left join speeches p on (s.id = p.sacramental_id)
 left join members m on (m.id = p.member_id)
 
+
+-- drop view detailed_members_view;
+create view detailed_members_view as 
+select 
+m.id,
+m.name,
+DATE_PART('year', age(now(), m.birth)) as age,
+(select max(minutes) from speeches p where member_id = m.id and p.user_id=m.user_id) minutes,
+(select count(id) from speeches s where member_id = m.id and s.user_id=m.user_id) speeches_count,
+(select max(s.date) from speeches p inner join sacramentals s on s.id = p.sacramental_id where member_id = m.id and p.user_id=m.user_id) last_speech,
+m.user_id
+from members m
+
