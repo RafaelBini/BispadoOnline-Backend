@@ -6,6 +6,7 @@ var cors = require('cors');
 var nodemailer = require('nodemailer');
 const auth = require("./middlewares/auth");
 const getMembersData = require("./church_data_fetch");
+const fs = require('fs');
 
 // #region EMAILER
 var transporter = nodemailer.createTransport({
