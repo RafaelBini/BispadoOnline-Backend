@@ -19,7 +19,7 @@ jobs:
           node-version: 18
           
       - name: Instalar as dependencias
-        run: npm ci
+        run: sudo npm ci
         
       - name: Deletar o repositorio atual no servidor
         uses: appleboy/ssh-action@master
@@ -50,4 +50,4 @@ jobs:
             cd ${{ vars.DESTINATION_FOLDER }}
             echo '${{ secrets.ENV_FILE }}' > .env
             cd /root
-            pm2 restart ${{ vars.APP_NAME }} --update-env
+            sudo pm2 restart ${{ vars.APP_NAME }} --update-env
