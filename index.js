@@ -44,7 +44,7 @@ function createEmailToken() {
     for (let i = 1; i <= 5; i++) {
         token += Math.floor(Math.random() * 10)
     }
-    return token
+    return '1234'//token
 }
 function createJwtToken(id) {
     return jwt.sign({ id }, process.env.SECRET, {

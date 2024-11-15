@@ -40,9 +40,11 @@ create table speeches (
 	is_wild_card boolean,
 	wild_text varchar(120),
 	user_id int,
+	order_num int,
 	CONSTRAINT fk_speeches_member FOREIGN KEY (member_id) REFERENCES members (id),
 	CONSTRAINT fk_speeches_sacramental FOREIGN KEY (sacramental_id) REFERENCES sacramentals (id)
 )
+
 
 -- drop table invite_template
 create table invite_template (
@@ -66,6 +68,7 @@ p.wild_text,
 topic,
 reference,
 minutes,
+order_num,
 p.user_id as speech_user_id,
 s.user_id
 from sacramentals s
