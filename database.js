@@ -93,7 +93,7 @@ module.exports = {
             await add(tableName, obj, userId)
             return;
         }
-
+        //console.log(obj)
         var existentObj = await get(tableName, obj.id, userId)
 
         if (existentObj) {
