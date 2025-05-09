@@ -326,7 +326,7 @@ app.get('/birthday', async (req, res) => {
             if (error) {
                 console.log('Email error: ' + error);
             } else {
-                console.log('Email sent: ' + info.response);
+                //console.log('Email sent: ' + info.response);
             }
         });
 
