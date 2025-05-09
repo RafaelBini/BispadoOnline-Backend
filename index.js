@@ -298,6 +298,48 @@ app.get('/sacramentals', auth, async (req, res) => {
         return res.status(500).json(ex)
     }
 })
+app.get('/birthday', async (req, res) => {
+    try {
+
+        // Pegar os aniversariantes
+        var aniversariantes = await db.fetch('birthday_today_view', '', '1');
+        if (aniversariantes.length <= 0) {
+            return res.status(200)
+                .json({ msg: "Nenhum aniversariante hoje! Email não enviado." });
+        }
+
+        // Enviar email
+
+        var msg = "";
+        for (let aniversairante of aniversariantes) {
+            msg += `<tr><td>${aniversairante.name} - ${aniversairante.age} anos</td></tr>`
+        }
+
+        var mailOptions = {
+            from: 'alaparquedafonte@gmail.com',
+            to: 'rfabini1996@gmail.com',
+            subject: 'Aniversariantes ' + new Date().toLocaleDateString(),
+            html: `<table>${msg}</table>`
+        };
+
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log('Email error: ' + error);
+            } else {
+                console.log('Email sent: ' + info.response);
+            }
+        });
+
+        return res.status(200)
+            .json({ msg: "Email enviado" });
+
+    }
+    catch (ex) {
+        return res.status(400)
+            .json({ msg: "Email failed " });
+    }
+
+})
 // #endregion
 
 
