@@ -3,19 +3,24 @@ const puppeteer = require('puppeteer');
 require('dotenv-safe').config({
     allowEmptyValues: true,
 });
-const puppeteerConfig = {
-    headless: false,
+var puppeteerConfig = {
+    headless: true,
     args: [
         '--no-sandbox',
         "--disable-gpu",
         "--single-process",
-        "--no-zygote"
+        '--disable-setuid-sandbox',
+        '--no-sandbox',
+        '--no-zygote'
     ]
+}
+if (process.env.NODE_ENV == 'PROD') {
+    puppeteerConfig.executablePath = '/snap/bin/chromium'
 }
 const DEFAULT_TIMEOUT = (1000 * 60 * 3);
 
 async function getMembersData(user, pass, unitNumber) {
-    const browser = await puppeteer.launch({ ...puppeteerConfig, headless: true });
+    const browser = await puppeteer.launch({ ...puppeteerConfig });
     const page = await browser.newPage();
 
     await page.goto('https://lcr.churchofjesuschrist.org')
