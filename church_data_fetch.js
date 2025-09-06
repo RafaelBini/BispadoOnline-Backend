@@ -39,7 +39,11 @@ async function getMembersData(user, pass, unitNumber) {
     await page.waitForSelector('button[id="button-primary"]', { timeout: DEFAULT_TIMEOUT });
     await page.click('button[id="button-primary"]');
 
-    await page.waitForSelector('input[type=search]', { timeout: DEFAULT_TIMEOUT });
+    try {
+        await page.waitForSelector('input[type=search]', { timeout: DEFAULT_TIMEOUT });
+    }
+    catch (ex) { }
+
 
     const members = await page.evaluate((unitNumber) => {
         return new Promise((resolve, reject) => {
