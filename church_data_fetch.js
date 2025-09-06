@@ -17,7 +17,7 @@ var puppeteerConfig = {
 if (process.env.NODE_ENV == 'PROD') {
     puppeteerConfig.executablePath = '/snap/bin/chromium'
 }
-const DEFAULT_TIMEOUT = (1000 * 60 * 1);
+const DEFAULT_TIMEOUT = (1000 * 40);
 
 async function getMembersData(user, pass, unitNumber) {
     const browser = await puppeteer.launch({ ...puppeteerConfig });
@@ -39,10 +39,11 @@ async function getMembersData(user, pass, unitNumber) {
     await page.waitForSelector('button[id="button-primary"]', { timeout: DEFAULT_TIMEOUT });
     await page.click('button[id="button-primary"]');
 
-    try {
-        await page.waitForSelector('input[type=search]', { timeout: DEFAULT_TIMEOUT });
-    }
-    catch (ex) { }
+
+    //await page.waitForSelector('input[type=search]', { timeout: DEFAULT_TIMEOUT });
+
+    await page.waitForSelector('input[id="uber-search-input"]', { timeout: DEFAULT_TIMEOUT });
+
 
 
     const members = await page.evaluate((unitNumber) => {
