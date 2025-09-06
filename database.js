@@ -79,7 +79,9 @@ const update = async (tableName, obj, userId) => {
     const entries = Object.entries(obj);
     const nodes = entries.map((e, index) => `${e[0]} = $${index + 1}`)
     const values = entries.map(e => e[1])
-    return await db.query(`UPDATE ${tableName} SET ${nodes.join(', ')} WHERE user_id='${userId}' AND id='${obj.id}';`, values)
+    var q = `UPDATE ${tableName} SET ${nodes.join(', ')} WHERE user_id='${userId}' AND id='${obj.id}';`;
+    //console.log(q);
+    return await db.query(q, values)
 }
 
 module.exports = {

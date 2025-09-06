@@ -122,7 +122,8 @@ app.post('/load-members-data', auth, async (req, res) => {
                 legacyId: m.legacyId,
                 name: m.name,
                 sex: m.sex,
-                birth: m.birth
+                birth: m.birth,
+                archived: false
             }
         })
         for (let member of members) {

@@ -17,6 +17,7 @@ create table members (
     sex varchar(1),
     birth date,
     user_id int,
+	archived boolean,
     CONSTRAINT fk_member_user FOREIGN KEY (user_id) REFERENCES users (id)
 )
 
@@ -87,4 +88,5 @@ DATE_PART('year', age(now(), m.birth)) as age,
 (select max(s.date) from speeches p inner join sacramentals s on s.id = p.sacramental_id where member_id = m.id and p.user_id=m.user_id) last_speech,
 m.user_id
 from members m
+where archived <> true
 
