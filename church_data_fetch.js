@@ -17,7 +17,7 @@ var puppeteerConfig = {
 if (process.env.NODE_ENV == 'PROD') {
     puppeteerConfig.executablePath = '/snap/bin/chromium'
 }
-const DEFAULT_TIMEOUT = (1000 * 60 * 3);
+const DEFAULT_TIMEOUT = (1000 * 60 * 1);
 
 async function getMembersData(user, pass, unitNumber) {
     const browser = await puppeteer.launch({ ...puppeteerConfig });
@@ -25,19 +25,19 @@ async function getMembersData(user, pass, unitNumber) {
 
     await page.goto('https://lcr.churchofjesuschrist.org')
 
-    await page.waitForSelector('input[name="identifier"]', { timeout: DEFAULT_TIMEOUT });
-    await page.focus('input[name="identifier"]');
+    await page.waitForSelector('input[name="username"]', { timeout: DEFAULT_TIMEOUT });
+    await page.focus('input[name="username"]');
     await page.keyboard.type(user, { delay: 50 });
 
-    await page.waitForSelector('input[type="submit"]', { timeout: DEFAULT_TIMEOUT });
-    await page.click('input[type="submit"]');
+    await page.waitForSelector('input[type="button"]', { timeout: DEFAULT_TIMEOUT });
+    await page.click('input[type="button"]');
 
     await page.waitForSelector('input[type="password"]', { timeout: DEFAULT_TIMEOUT });
     await page.focus('input[type="password"]');
     await page.keyboard.type(pass, { delay: 50 });
 
-    await page.waitForSelector('input[type=submit]', { timeout: DEFAULT_TIMEOUT });
-    await page.click("input[type=submit]");
+    await page.waitForSelector('input[type=button]', { timeout: DEFAULT_TIMEOUT });
+    await page.click("input[type=button]");
 
     await page.waitForSelector('input[type=search]', { timeout: DEFAULT_TIMEOUT });
 
