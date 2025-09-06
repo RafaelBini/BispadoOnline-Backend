@@ -29,15 +29,15 @@ async function getMembersData(user, pass, unitNumber) {
     await page.focus('input[name="username"]');
     await page.keyboard.type(user, { delay: 50 });
 
-    await page.waitForSelector('input[type="button"]', { timeout: DEFAULT_TIMEOUT });
-    await page.click('input[type="button"]');
+    await page.waitForSelector('button[id="button-primary"]', { timeout: DEFAULT_TIMEOUT });
+    await page.click('button[id="button-primary"]');
 
     await page.waitForSelector('input[type="password"]', { timeout: DEFAULT_TIMEOUT });
     await page.focus('input[type="password"]');
     await page.keyboard.type(pass, { delay: 50 });
 
-    await page.waitForSelector('input[type=button]', { timeout: DEFAULT_TIMEOUT });
-    await page.click("input[type=button]");
+    await page.waitForSelector('button[id="button-primary"]', { timeout: DEFAULT_TIMEOUT });
+    await page.click('button[id="button-primary"]');
 
     await page.waitForSelector('input[type=search]', { timeout: DEFAULT_TIMEOUT });
 
