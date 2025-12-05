@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 function verifyJWT(req, res, next) {
     // Temporaily removed the login verification
     //const token = req.headers["x-access-token"];
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM4NTE2ODAxLCJleHAiOjE3NjQ0MzY4MDF9.Vx952F4ZyO4K4LwDEpNkq63c0h0dhJxERolM1Ce24NU';
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzY0OTU3NzQ5LCJleHAiOjE3OTA4Nzc3NDl9.27SGGMvYVWt3cv6LihPJeKxZuuOVta1YihzbIxHRYYM';
 
     if (!token) return res.status(401).json({ msg: "Token undefined" });
     jwt.verify(token, process.env.SECRET, (err, decoded) => {
