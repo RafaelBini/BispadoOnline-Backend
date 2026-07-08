@@ -40,6 +40,7 @@ create table speeches (
 	message_copied boolean,
 	is_wild_card boolean,
 	wild_text varchar(120),
+	approved boolean,
 	user_id int,
 	order_num int,
 	CONSTRAINT fk_speeches_member FOREIGN KEY (member_id) REFERENCES members (id),
