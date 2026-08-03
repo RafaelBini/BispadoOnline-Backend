@@ -5,6 +5,7 @@ require('dotenv-safe').config({
 });
 var puppeteerConfig = {
     headless: true,
+    protocolTimeout: 3600000,
     args: [
         '--no-sandbox',
         "--disable-gpu",

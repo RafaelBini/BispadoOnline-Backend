@@ -70,6 +70,7 @@ p.wild_text,
 topic,
 reference,
 minutes,
+approved,
 order_num,
 p.user_id as speech_user_id,
 s.user_id
