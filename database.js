@@ -84,11 +84,65 @@ const update = async (tableName, obj, userId) => {
     return await db.query(q, values)
 }
 
+const MEMBERS_UPSERT_CHUNK = 100;
+
+const bulkUpsertMembers = async (members, userId) => {
+    if (!members.length) return;
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        for (let offset = 0; offset < members.length; offset += MEMBERS_UPSERT_CHUNK) {
+            const chunk = members.slice(offset, offset + MEMBERS_UPSERT_CHUNK);
+            const values = [];
+            const rowPlaceholders = [];
+            let param = 1;
+
+            for (const member of chunk) {
+                rowPlaceholders.push(
+                    `($${param++}, $${param++}, $${param++}, $${param++}, $${param++}, $${param++}, $${param++})`
+                );
+                values.push(
+                    member.id,
+                    member.legacyId ?? null,
+                    member.name,
+                    member.sex ?? null,
+                    member.birth ?? null,
+                    userId,
+                    member.archived ?? false
+                );
+            }
+
+            await client.query(
+                `INSERT INTO members (id, legacy_id, name, sex, birth, user_id, archived)
+                 VALUES ${rowPlaceholders.join(', ')}
+                 ON CONFLICT (id) DO UPDATE SET
+                   legacy_id = EXCLUDED.legacy_id,
+                   name = EXCLUDED.name,
+                   sex = EXCLUDED.sex,
+                   birth = COALESCE(EXCLUDED.birth, members.birth),
+                   archived = EXCLUDED.archived,
+                   user_id = EXCLUDED.user_id`,
+                values
+            );
+        }
+
+        await client.query('COMMIT');
+    } catch (ex) {
+        await client.query('ROLLBACK');
+        throw ex;
+    } finally {
+        client.release();
+    }
+};
+
 module.exports = {
     add,
     get,
     del,
     update,
+    bulkUpsertMembers,
     set: async (tableName, obj, userId) => {
 
         if (!obj.id) {

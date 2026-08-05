@@ -117,24 +117,30 @@ app.post('/load-members-data', auth, async (req, res) => {
     try {
         var members = await getMembersData(user, pass)
         members = members.map(m => {
+            const birth = m.birth && String(m.birth).trim() !== '' ? m.birth : null;
             return {
                 id: m.id,
                 legacyId: m.legacyId,
                 name: m.name,
                 sex: m.sex,
-                birth: m.birth,
+                birth,
                 archived: false
             }
         })
-        for (let member of members) {
-            await db.set('members', member, req.userId)
-        }
+        await db.bulkUpsertMembers(members, req.userId)
 
-        return res.status(200).json({ msg: 'Members data loaded' });
+        return res.status(200).json({ msg: 'Members data loaded', count: members.length });
     }
     catch (ex) {
         console.log(ex)
-        return res.status(400).json(ex);
+        const isTimeout = ex?.name === 'TimeoutError';
+        return res.status(400).json({
+            msg: ex?.message || 'Failed to load members data',
+            name: ex?.name,
+            ...(isTimeout && {
+                hint: 'A operação pode levar 5–10 minutos (login LCR + buscas). No Insomnia: aumente Request timeout (Settings) para pelo menos 600000 ms (10 min). Se o timeout for do Puppeteer, tente novamente ou apague a pasta .church-session e refaça o login.',
+            }),
+        });
     }
 
 })

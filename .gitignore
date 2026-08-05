@@ -1,2 +1,4 @@
 node_modules
 .env
+.church-session
+scripts/discover-output/
