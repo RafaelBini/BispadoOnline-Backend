@@ -6,6 +6,12 @@ var cors = require('cors');
 var nodemailer = require('nodemailer');
 const auth = require("./middlewares/auth");
 const getMembersData = require("./church_data_fetch");
+const {
+    getGoogleAuthUrl,
+    exchangeGoogleAuthCode,
+    getAuthenticatedClient,
+    addDiscursantesAta,
+} = require("./google_ata");
 const fs = require('fs');
 
 // #region EMAILER
@@ -144,6 +150,89 @@ app.post('/load-members-data', auth, async (req, res) => {
     }
 
 })
+// #endregion
+
+// #region GOOGLE DRIVE / ATA
+app.get('/google/auth-url', auth, (req, res) => {
+    try {
+        if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_SECRET) {
+            return res.status(500).json({ msg: 'Google OAuth não configurado no servidor (GOOGLE_CLIENT_ID / GOOGLE_SECRET).' });
+        }
+        return res.json({ url: getGoogleAuthUrl() });
+    } catch (ex) {
+        console.log(ex);
+        return res.status(500).json({ msg: ex.message || 'Falha ao gerar URL de autenticação Google.' });
+    }
+});
+
+app.get('/google/oauth/callback', async (req, res) => {
+    try {
+        if (!req.query.code) {
+            return res.status(400).send('Código de autorização ausente.');
+        }
+        const tokens = await exchangeGoogleAuthCode(req.query.code);
+        const frontendOrigin = process.env.FRONTEND_URL || 'http://localhost:4200';
+        res.send(`<!DOCTYPE html><html><body><script>
+            (function () {
+                var tokens = ${JSON.stringify(tokens)};
+                if (window.opener) {
+                    window.opener.postMessage({ type: 'google-oauth-success', tokens: tokens }, ${JSON.stringify(frontendOrigin)});
+                }
+                window.close();
+            })();
+        </script><p>Login concluído. Esta janela deve fechar automaticamente.</p></body></html>`);
+    } catch (ex) {
+        console.log('Google OAuth callback error', ex);
+        res.status(500).send(ex.message || 'Falha ao concluir login Google.');
+    }
+});
+
+app.post('/add-discursantes-ata', auth, async (req, res) => {
+    try {
+        const { sacramental_date, discursante_1, discursante_2, discursante_3, googleAccessToken, googleRefreshToken } = req.body;
+
+        if (!sacramental_date || sacramental_date.length !== 10) {
+            return res.status(400).json({
+                success: false,
+                message: 'Informe sacramental_date no formato yyyy-MM-dd.',
+            });
+        }
+
+        if (!discursante_1 || !String(discursante_1).trim()) {
+            return res.status(400).json({
+                success: false,
+                message: 'Informe discursante_1 (obrigatório).',
+            });
+        }
+
+        const { oauth2, refreshedTokens } = await getAuthenticatedClient(googleAccessToken, googleRefreshToken);
+        const result = await addDiscursantesAta(oauth2, {
+            sacramental_date,
+            discursante_1,
+            discursante_2,
+            discursante_3,
+        });
+
+        return res.json({
+            ...result,
+            refreshedTokens: refreshedTokens ? {
+                access_token: refreshedTokens.access_token,
+                refresh_token: refreshedTokens.refresh_token,
+                expiry_date: refreshedTokens.expiry_date,
+            } : null,
+        });
+    } catch (ex) {
+        console.log('Falha ao adicionar discursantes na ata', ex);
+        const status = ex.googleAuthRequired ? 401 : (ex.statusCode || 500);
+        return res.status(status).json({
+            success: false,
+            message: ex.message || 'Falha ao atualizar discursantes na ata.',
+            googleAuthRequired: !!ex.googleAuthRequired,
+            docId: ex.docId,
+            docUrl: ex.docUrl,
+        });
+    }
+});
 // #endregion
 
 // #region DATABASE ENDPOINTS
